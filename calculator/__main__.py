@@ -6,6 +6,8 @@ class Calculator(QWidget):
 	def __init__(self):
 		super().__init__()
 
+		self.lhs, self.rhs, self.op = None, None, None
+		self.save_rhs = False
 		self.vbox = QVBoxLayout(self)
 
 		self.hbox_input = QHBoxLayout()
@@ -19,6 +21,7 @@ class Calculator(QWidget):
 		self.vbox.addLayout(self.hbox_result)
 
 		self.input = QLineEdit(self)
+		self.input.setReadOnly(True)
 		self.hbox_input.addWidget(self.input)
 
 		for character in ["1", "2", "3", "."]:
@@ -32,29 +35,47 @@ class Calculator(QWidget):
 			self.hbox_actions.addWidget(action_button)
 
 		self.b_result = QPushButton("=", self)
-		self.hbox_result.addWidget(self.b_result)
-
 		self.b_result.clicked.connect(self._result)
+		self.hbox_result.addWidget(self.b_result)
 
 	def _button(self, param):
 		line = self.input.text()
+
+		if param == "." and "." in line:
+			return
+
+		self.save_rhs = False
 		self.input.setText(line + param)
 
 	def _operation(self, op):
-		self.num_1 = float(self.input.text())
-		self.op = op
+		lhs_text = self.input.text()
+
+		self.op, self.save_rhs = op, False
+		if not lhs_text:
+			return
+
+		self.lhs = float(self.input.text())
 		self.input.setText("")
-	
+
 	def _result(self):
-		self.num_2 = float(self.input.text())
-		if self.op == "+":
-			self.input.setText("{:g}".format(self.num_1 + self.num_2))
-		elif self.op == "-":
-			self.input.setText("{:g}".format(self.num_1 - self.num_2))
-		elif self.op == "*":
-			self.input.setText("{:g}".format(self.num_1 * self.num_2))
-		elif self.op == "/":
-			self.input.setText("{:g}".format(self.num_1 / self.num_2))
+		if self.lhs is None or self.op is None:
+			return
+
+		rhs_text = self.input.text()
+		if not rhs_text:
+			return
+		if not self.save_rhs:
+			self.rhs = float(rhs_text)
+
+		self.operations = {
+			"+": lambda lhs, rhs: lhs + rhs, "-": lambda lhs, rhs: lhs - rhs,
+			"*": lambda lhs, rhs: lhs * rhs, "/": lambda lhs, rhs: lhs / rhs
+		}
+		result = self.operations[self.op](self.lhs, self.rhs)
+		self.input.setText("{:g}".format(result))
+
+		self.save_rhs = True
+		self.lhs = result
 
 
 def main():
