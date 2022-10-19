@@ -21,14 +21,10 @@ class Calculator(QWidget):
 		self.input = QLineEdit(self)
 		self.hbox_input.addWidget(self.input)
 
-		self.b_1 = QPushButton("1", self)
-		self.hbox_first.addWidget(self.b_1)
-
-		self.b_2 = QPushButton("2", self)
-		self.hbox_first.addWidget(self.b_2)
-
-		self.b_3 = QPushButton("3", self)
-		self.hbox_first.addWidget(self.b_3)
+		for character in ["1", "2", "3", "."]:
+			character_button = QPushButton(character, self)
+			character_button.clicked.connect(lambda state, x=character: self._button(x))
+			self.hbox_first.addWidget(character_button)
 
 		for operation in ["+", "-", "*", "/"]:
 			action_button = QPushButton(operation, self)
@@ -40,29 +36,25 @@ class Calculator(QWidget):
 
 		self.b_result.clicked.connect(self._result)
 
-		self.b_1.clicked.connect(lambda: self._button("1"))
-		self.b_2.clicked.connect(lambda: self._button("2"))
-		self.b_3.clicked.connect(lambda: self._button("3"))
-
 	def _button(self, param):
 		line = self.input.text()
 		self.input.setText(line + param)
 
 	def _operation(self, op):
-		self.num_1 = int(self.input.text())
+		self.num_1 = float(self.input.text())
 		self.op = op
 		self.input.setText("")
 	
 	def _result(self):
-		self.num_2 = int(self.input.text())
+		self.num_2 = float(self.input.text())
 		if self.op == "+":
-			self.input.setText(str(self.num_1 + self.num_2))
+			self.input.setText("{:g}".format(self.num_1 + self.num_2))
 		elif self.op == "-":
-			self.input.setText(str(self.num_1 - self.num_2))
+			self.input.setText("{:g}".format(self.num_1 - self.num_2))
 		elif self.op == "*":
-			self.input.setText(str(self.num_1 * self.num_2))
+			self.input.setText("{:g}".format(self.num_1 * self.num_2))
 		elif self.op == "/":
-			self.input.setText(str(self.num_1 / self.num_2))
+			self.input.setText("{:g}".format(self.num_1 / self.num_2))
 
 
 def main():
